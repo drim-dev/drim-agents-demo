@@ -1,5 +1,5 @@
 ---
-name: project-brief-brainstorming
+name: project-brief
 description: Используй при создании Project Brief, определении идеи проекта или уточнении scope. Структурированное исследование проблемы, пользователя, решения и границ MVP.
 ---
 
