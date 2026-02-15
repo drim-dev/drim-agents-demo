@@ -1,0 +1,140 @@
+using System.Collections;
+using System.Linq.Expressions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using Respawn;
+using Testcontainers.PostgreSql;
+
+namespace DrimAgents.Api.Tests.Harnesses;
+
+public class DatabaseHarness<TProgram, TDbContext> : IHarness<TProgram>
+    where TProgram : class
+    where TDbContext : DbContext
+{
+    private PostgreSqlContainer? _postgres;
+    private WebApplicationFactory<TProgram>? _factory;
+    private bool _started;
+    private readonly string _databaseResourceName;
+
+    public DatabaseHarness(string databaseResourceName)
+    {
+        _databaseResourceName = databaseResourceName;
+    }
+
+    public void ConfigureWebHostBuilder(IWebHostBuilder builder)
+    {
+        builder.UseSetting(
+            $"ConnectionStrings:{_databaseResourceName}",
+            _postgres!.GetConnectionString());
+    }
+
+    public async Task Start(WebApplicationFactory<TProgram> factory, CancellationToken cancellationToken)
+    {
+        _factory = factory;
+
+        _postgres = new PostgreSqlBuilder()
+            .WithImage("postgres:16")
+            .Build();
+
+        await _postgres.StartAsync(cancellationToken);
+        _started = true;
+    }
+
+    public async Task Stop(CancellationToken cancellationToken)
+    {
+        if (_postgres is not null)
+        {
+            await _postgres.StopAsync(cancellationToken);
+            await _postgres.DisposeAsync();
+        }
+
+        _started = false;
+    }
+
+    public async Task Migrate(CancellationToken cancellationToken)
+    {
+        ThrowIfNotStarted();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
+        await db.Database.MigrateAsync(cancellationToken);
+    }
+
+    public async Task Save(params object[] entities)
+    {
+        ThrowIfNotStarted();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        await using var dbContext = scope.ServiceProvider.GetRequiredService<TDbContext>();
+
+        var collections = entities.OfType<IEnumerable>();
+        foreach (var collection in collections)
+        {
+            dbContext.AddRange(collection);
+        }
+
+        var singleEntities = entities.Where(e => e is not IEnumerable);
+        dbContext.AddRange(singleEntities);
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task Execute(Func<TDbContext, Task> action)
+    {
+        ThrowIfNotStarted();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
+        await action(db);
+    }
+
+    public async Task<T> Execute<T>(Func<TDbContext, Task<T>> action)
+    {
+        ThrowIfNotStarted();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
+        return await action(db);
+    }
+
+    public async Task<T?> SingleOrDefault<T>(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken)
+        where T : class
+    {
+        ThrowIfNotStarted();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
+
+        return await db.Set<T>().SingleOrDefaultAsync(predicate, cancellationToken);
+    }
+
+    public async Task Clear(CancellationToken cancellationToken)
+    {
+        ThrowIfNotStarted();
+
+        await using var connection = new NpgsqlConnection(_postgres!.GetConnectionString());
+        await connection.OpenAsync(cancellationToken);
+
+        var respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
+        {
+            SchemasToInclude = ["public", "users"],
+            DbAdapter = DbAdapter.Postgres,
+        });
+
+        await respawner.ResetAsync(connection);
+    }
+
+    private void ThrowIfNotStarted()
+    {
+        if (!_started)
+        {
+            throw new InvalidOperationException(
+                $"Database harness is not started. Call {nameof(Start)} first.");
+        }
+    }
+}

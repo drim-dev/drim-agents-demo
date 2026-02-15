@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.AppHost", "Aspire.AppHost\Aspire.AppHost.csproj", "{211AA360-22C0-4B08-AEC0-08BDF94E1A7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.ServiceDefaults", "Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj", "{8E4DCA94-18EB-4CDC-B439-F8B01E49CE2C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{E5BBA5FE-69D8-49AC-9119-3B6A044E9435}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8148B8BD-FD39-44A4-866F-BE9F9D5B36D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrimAgents.Api", "backend\src\DrimAgents.Api\DrimAgents.Api.csproj", "{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrimAgents.Api.Tests", "backend\src\DrimAgents.Api.Tests\DrimAgents.Api.Tests.csproj", "{949B4C68-35A0-4067-BC9B-F18941AF46B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{211AA360-22C0-4B08-AEC0-08BDF94E1A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211AA360-22C0-4B08-AEC0-08BDF94E1A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211AA360-22C0-4B08-AEC0-08BDF94E1A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{211AA360-22C0-4B08-AEC0-08BDF94E1A7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E4DCA94-18EB-4CDC-B439-F8B01E49CE2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E4DCA94-18EB-4CDC-B439-F8B01E49CE2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E4DCA94-18EB-4CDC-B439-F8B01E49CE2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E4DCA94-18EB-4CDC-B439-F8B01E49CE2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{949B4C68-35A0-4067-BC9B-F18941AF46B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{949B4C68-35A0-4067-BC9B-F18941AF46B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{949B4C68-35A0-4067-BC9B-F18941AF46B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{949B4C68-35A0-4067-BC9B-F18941AF46B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8148B8BD-FD39-44A4-866F-BE9F9D5B36D4} = {E5BBA5FE-69D8-49AC-9119-3B6A044E9435}
+		{30CF12DD-B1CD-4599-ACD4-0A7ACE08EF78} = {8148B8BD-FD39-44A4-866F-BE9F9D5B36D4}
+		{949B4C68-35A0-4067-BC9B-F18941AF46B8} = {8148B8BD-FD39-44A4-866F-BE9F9D5B36D4}
+	EndGlobalSection
+EndGlobal

@@ -2,7 +2,160 @@
 
 ## Обзор проекта
 
-TODO
+**DrimAgents** — платформа для оркестрации AI-агентов. Позволяет создавать, настраивать и управлять цепочками AI-агентов для автоматизации сложных задач.
+
+### Архитектура
+
+- **Оркестрация**: .NET Aspire для локальной разработки и cloud-native деплоя
+- **Backend**: ASP.NET Core API (C#)
+- **Frontend**: Next.js с TypeScript
+- **BFF-слой**: Next.js API Routes (Backend-for-Frontend)
+- **База данных**: PostgreSQL
+- **Аутентификация**: OAuth 2.0 (Google, GitHub, GitLab) — без логина/пароля
+- **Архитектурный паттерн**: Vertical Slice Architecture (только backend)
+
+### Технологический стек
+
+**Backend:** C#, ASP.NET Core 9.0, .NET Aspire, PostgreSQL + EF Core, MediatR (CQRS), FluentValidation
+
+**Frontend:** TypeScript (strict mode), Next.js (App Router), Tailwind CSS
+
+## .NET Aspire
+
+.NET Aspire используется для оркестрации распределённого приложения и встроенной наблюдаемости.
+
+**Что даёт Aspire:**
+
+- **Service Discovery**: автоматическая коммуникация между сервисами
+- **Наблюдаемость**: логирование, метрики, распределённая трассировка (OpenTelemetry)
+- **Локальная разработка**: упрощённый запуск всех сервисов без Docker Compose
+- **Управление ресурсами**: оркестрация PostgreSQL и других зависимостей
+
+**Структура проектов Aspire:**
+
+- `Aspire.AppHost` — оркестрация и конфигурация сервисов
+- `Aspire.ServiceDefaults` — общие настройки наблюдаемости и устойчивости
+
+## Структура проекта
+
+```text
+drim-agents-demo/
+├── Aspire.AppHost/             # .NET Aspire оркестрация
+├── Aspire.ServiceDefaults/     # Общие конфигурации Aspire
+├── backend/
+│   └── src/
+│       ├── DrimAgents.Api/     # ASP.NET Core API
+│       │   ├── Features/       # Vertical slices (по доменам)
+│       │   ├── Domain/         # Доменные сущности (по доменам)
+│       │   ├── Database/       # DbContext, EF-конфигурации, миграции
+│       │   ├── Common/         # Общая инфраструктура (IEndpoint, расширения)
+│       │   └── Program.cs      # Точка входа
+│       └── DrimAgents.Api.Tests/ # Компонентные тесты backend
+├── frontend/                   # Next.js приложение
+│   ├── app/                    # App Router (страницы, API routes, layouts)
+│   ├── components/             # React-компоненты
+│   ├── lib/                    # Утилиты, хелперы
+│   ├── hooks/                  # Custom React hooks
+│   ├── types/                  # TypeScript типы
+│   └── stores/                 # Хранилища состояния
+└── docs/                       # Документация
+```
+
+## Vertical Slice Architecture (Backend)
+
+Каждая backend-фича — самодостаточный файл со всеми зависимостями.
+
+**Ключевые принципы:**
+
+- **Один проект**: `DrimAgents.Api`
+- **Пространства имён**: `DrimAgents.Api.Features.{Domain}`
+- **Один файл на фичу**: Endpoint, Request, RequestValidator, RequestHandler — вложенные классы в одном файле
+- **Доменные сущности**: в `Domain/`, сгруппированы по доменам
+- **Библиотеки**: MediatR (CQRS), FluentValidation
+
+**ОБЯЗАТЕЛЬНЫЕ скиллы перед реализацией backend-фич:**
+
+1. `vertical-slice-architecture` — структура и организация фич
+2. `component-testing` — компонентные тесты
+3. `validation` — валидация и ответы с ошибками
+4. `error-handling` — обработка ошибок (ProblemDetails, RFC 7807)
+5. `id-generation` — генерация ID (IdGen + Crockford Base32)
+
+## Организация фронтенда (Next.js)
+
+- **Server Components по умолчанию** — Client Components (`'use client'`) только при необходимости интерактивности, состояния или browser API
+- **Server Actions для мутаций** — предпочитать Server Actions вместо BFF-маршрутов
+- **Дизайн-система**: все UI-компоненты ОБЯЗАНЫ следовать `frontend/DESIGN_SYSTEM.md`
+- **Структура компонентов**: `components/ui/` для базовых, `components/` для feature-specific
+
+**Паттерн доступа к данным:**
+
+- Server Components → Backend напрямую
+- Client Components → BFF (Next.js API Routes) → Backend
+
+## Аутентификация и авторизация
+
+### OAuth 2.0 — без логина/пароля
+
+**Провайдеры:** Google, GitHub, GitLab
+
+- Frontend: NextAuth.js для управления OAuth-потоком
+- BFF валидирует сессию и передаёт контекст пользователя в backend через заголовки
+- Backend доверяет заголовкам BFF (сетевая изоляция)
+
+### Роли и политики
+
+- **User** — роль по умолчанию для всех аутентифицированных пользователей
+- **Admin** — полный доступ к платформе
+
+Авторизация реализуется через политики ASP.NET Core на уровне endpoint (`.RequireAuthorization(AuthorizationPolicies.RequireAdmin)`), а не в handler-ах.
+
+## База данных
+
+- **PostgreSQL** + Entity Framework Core, code-first подход
+- **Сущности**: `backend/src/DrimAgents.Api/Domain/{Domain}/`
+- **DbContext**: `backend/src/DrimAgents.Api/Database/AppDbContext.cs`
+- **Миграции**: `backend/src/DrimAgents.Api/Database/Migrations/`
+
+**Практики EF Core:**
+
+- `AsNoTracking()` для read-only запросов
+- `Select()` для проекций в базе данных, а не в памяти
+- Navigation properties для упрощения LINQ-запросов
+
+## API-коммуникация
+
+- **Server Components → Backend (напрямую)**: основной паттерн для загрузки данных, лучшая производительность
+- **Client Components → BFF → Backend**: только когда Client Component нуждается в данных (формы, интерактивные обновления)
+
+## Стандарты тестирования
+
+- **ВСЕ падения тестов — ответственность разработчика**
+- **Никогда не удаляй падающие тесты** — сообщи о проблеме Диме
+- **НИКОГДА не тестируй замоканное поведение** — тестируй реальную логику
+- **Backend**: компонентные тесты (xUnit + FluentAssertions), реальная PostgreSQL, сброс через Respawn, без моков
+- **Frontend**: Jest + React Testing Library
+- **Вывод тестов должен быть чистым**: если тест намеренно вызывает ошибку, она должна быть перехвачена и проверена
+
+## TypeScript
+
+- Strict mode всегда включён
+- Запрещён `any` (используй `unknown` если тип действительно динамический)
+- Предпочитай `interface` для описания объектов
+- Используй discriminated unions для вариантов
+- Явные типы возвращаемых значений функций
+- Общие типы — в `types/`
+
+## Добавление зависимостей
+
+**NuGet:**
+
+- Всегда устанавливай последние стабильные версии: `dotnet add package PackageName` (без указания версии)
+- После обновления проверяй сборку: `dotnet build DrimAgents.sln`
+
+**npm:**
+
+- Проверяй необходимость, поддержку, безопасность и влияние на размер бандла перед добавлением
 
 ## Язык документации
 
