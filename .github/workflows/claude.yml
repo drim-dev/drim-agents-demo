@@ -58,5 +58,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "Проведи ревью этого PR. Сфокусируйся на багах, проблемах безопасности и соблюдении конвенций проекта из CLAUDE.md. Будь лаконичен."
+          prompt: |
+            Проведи ревью PR #${{ github.event.pull_request.number }}.
+            Сфокусируйся на багах, проблемах безопасности и соблюдении конвенций проекта из CLAUDE.md.
+            Будь лаконичен. Результат ревью опубликуй как комментарий в PR командой:
+            gh pr comment ${{ github.event.pull_request.number }} --body "<текст ревью>"
           claude_args: "--max-turns 5 --allowedTools 'Bash(gh pr *)' 'Bash(gh api *)' 'Bash(git diff *)' 'Bash(git log *)'"
