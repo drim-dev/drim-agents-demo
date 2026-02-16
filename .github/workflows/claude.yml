@@ -59,10 +59,14 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            1. Получи diff: gh pr diff ${{ github.event.pull_request.number }}
+            Ты — автоматический ревьюер. Работай полностью автономно. НИКОГДА не задавай вопросов.
+
+            1. Получи список файлов: gh pr diff ${{ github.event.pull_request.number }} --name-only
             2. Прочитай CLAUDE.md для контекста конвенций проекта.
-            3. Проведи краткое ревью diff — баги, безопасность, нарушения конвенций.
-            4. НЕ запускай сборку, тесты или dotnet/npm команды. НЕ читай файлы, которые не в diff.
+            3. Читай diff по файлам/группам: gh pr diff ${{ github.event.pull_request.number }} -- <путь к файлу>
+               Если diff слишком большой, читай его по частям (по директориям или файлам).
+            4. НЕ запускай сборку, тесты или dotnet/npm команды.
             5. Запиши результат ревью в файл review.md в текущей директории с помощью Write tool.
+               Формат: заголовок, критические проблемы, некритичные замечания, позитивное. Будь лаконичен.
             6. Опубликуй: gh pr comment ${{ github.event.pull_request.number }} --body-file review.md
           claude_args: "--max-turns 50 --allowedTools Write 'Bash(gh pr *)' 'Bash(gh api *)' 'Bash(git diff *)' 'Bash(git log *)'"
