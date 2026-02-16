@@ -11,20 +11,24 @@ public class TestFixture : IAsyncLifetime
     public TestFixture()
     {
         Database = new DatabaseHarness<Program, AppDbContext>("drimagentsdb");
+        HttpServer = new HttpServerHarness<Program>();
         HttpClient = new HttpClientHarness<Program>();
 
         _factory = new WebApplicationFactory<Program>()
             .AddHarness(Database)
+            .AddHarness(HttpServer)
             .AddHarness(HttpClient);
     }
 
     public WebApplicationFactory<Program> Factory => _factory;
     public DatabaseHarness<Program, AppDbContext> Database { get; }
+    public HttpServerHarness<Program> HttpServer { get; }
     public HttpClientHarness<Program> HttpClient { get; }
 
     public async Task Reset(CancellationToken cancellationToken)
     {
         await Database.Clear(cancellationToken);
+        HttpServer.Reset();
     }
 
     private static CancellationToken CreateCancellationToken(int timeoutSeconds = 30)
@@ -36,6 +40,7 @@ public class TestFixture : IAsyncLifetime
     {
         await Database.Start(_factory, CreateCancellationToken(60));
         await Database.Migrate(CreateCancellationToken(60));
+        await HttpServer.Start(_factory, CreateCancellationToken());
         await HttpClient.Start(_factory, CreateCancellationToken());
 
         _ = _factory.Server;
@@ -44,6 +49,7 @@ public class TestFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await HttpClient.Stop(CreateCancellationToken());
+        await HttpServer.Stop(CreateCancellationToken());
         await Database.Stop(CreateCancellationToken());
     }
 }

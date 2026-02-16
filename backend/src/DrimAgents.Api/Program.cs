@@ -2,7 +2,9 @@ using DrimAgents.Api.Common.Auth;
 using DrimAgents.Api.Common.Exceptions;
 using DrimAgents.Api.Common.Http;
 using DrimAgents.Api.Common.Identity;
+using DrimAgents.Api.Common.Options;
 using DrimAgents.Api.Common.Pagination;
+using DrimAgents.Api.Common.Services;
 using DrimAgents.Api.Common.Validation;
 using DrimAgents.Api.Database;
 using DrimAgents.Api.Features.Users.Options;
@@ -28,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.Configure<PagingOptions>(builder.Configuration.GetSection("Paging"));
 builder.Services.Configure<UsersOptions>(builder.Configuration.GetSection("Users"));
+builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection("Encryption"));
 
 var idStructure = new IdStructure(41, 10, 12);
 var epoch = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -37,6 +40,26 @@ var idGenerator = new IdGenerator(0, idGeneratorOptions);
 builder.Services.AddSingleton(idGenerator);
 builder.Services.AddSingleton<IIdFactory, IdFactory>();
 builder.Services.AddSingleton<LimitOffsetPaging>();
+
+builder.Services.AddSingleton<IDataProtectionEncryption>(sp =>
+{
+    var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<EncryptionOptions>>().Value;
+    return new AesEncryptionService(Convert.FromBase64String(options.DataProtectionKey));
+});
+
+builder.Services.AddSingleton<IPaginationEncryption>(sp =>
+{
+    var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<EncryptionOptions>>().Value;
+    return new AesEncryptionService(Convert.FromBase64String(options.PaginationKey));
+});
+
+builder.Services.AddHttpClient("GitHub", client =>
+{
+    client.BaseAddress = new Uri("https://api.github.com");
+    client.DefaultRequestHeaders.Add("User-Agent", "DrimAgents");
+    client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
+});
+builder.Services.AddScoped<IGitHubService, GitHubService>();
 
 builder.Services.AddMediatR(cfg =>
 {

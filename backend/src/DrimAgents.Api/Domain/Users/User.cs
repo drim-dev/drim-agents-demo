@@ -1,3 +1,5 @@
+using DrimAgents.Api.Domain.Projects;
+
 namespace DrimAgents.Api.Domain.Users;
 
 public class User
@@ -10,4 +12,5 @@ public class User
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public ICollection<OAuthAccount> OAuthAccounts { get; set; } = [];
+    public ICollection<Project> Projects { get; set; } = [];
 }

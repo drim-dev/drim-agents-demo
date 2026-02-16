@@ -1,3 +1,4 @@
+using DrimAgents.Api.Domain.Projects;
 using DrimAgents.Api.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<OAuthAccount> OAuthAccounts => Set<OAuthAccount>();
+    public DbSet<Project> Projects => Set<Project>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

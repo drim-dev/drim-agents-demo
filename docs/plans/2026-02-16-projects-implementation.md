@@ -41,10 +41,10 @@
 ### Слой 0: Инфраструктура (параллельно)
 
 #### 0.1. Сервис шифрования AES-256
-- [ ] Создать `Common/Services/IDataProtectionEncryption.cs` — интерфейс `Encrypt(string) → string`, `Decrypt(string) → string`
-- [ ] Создать `Common/Services/IPaginationEncryption.cs` — тот же контракт
-- [ ] Создать `Common/Services/AesEncryptionService.cs` — реализация AES-256-CBC, PKCS7, случайный IV на каждое шифрование, результат `Base64(IV + CipherText)`
-- [ ] Создать `Common/Options/EncryptionOptions.cs` — `PaginationKey` (string, base64) и `DataProtectionKey` (string, base64)
+- [x] Создать `Common/Services/IDataProtectionEncryption.cs` — интерфейс `Encrypt(string) → string`, `Decrypt(string) → string`
+- [x] Создать `Common/Services/IPaginationEncryption.cs` — тот же контракт
+- [x] Создать `Common/Services/AesEncryptionService.cs` — реализация AES-256-CBC, PKCS7, случайный IV на каждое шифрование, результат `Base64(IV + CipherText)`
+- [x] Создать `Common/Options/EncryptionOptions.cs` — `PaginationKey` (string, base64) и `DataProtectionKey` (string, base64)
 
 **Детали реализации:**
 - Один класс `AesEncryptionService` реализует оба интерфейса
@@ -52,23 +52,23 @@
 - **Отличие от LimitOffsetPaging**: здесь случайный IV на каждое шифрование (более безопасно для данных), в пагинации — фиксированный IV (детерминированные токены)
 
 #### 0.2. Доменная модель Project
-- [ ] Создать `Domain/Projects/Project.cs` — сущность с полями: `Id` (long), `UserId` (long), `Name` (string), `Description` (string?), `GitHubRepoUrl` (string), `EncryptedGitHubPat` (string), `CreatedAt` (DateTime), `UpdatedAt` (DateTime), navigation property `User`
-- [ ] Создать `Database/Configurations/ProjectConfiguration.cs` — таблица `projects.projects`, схема `projects`, FK к `users.users`, индекс `IX_projects_user_id` по `UserId`
-- [ ] Добавить `DbSet<Project> Projects` в `AppDbContext.cs`
-- [ ] Добавить navigation property `ICollection<Project> Projects` в сущность `User`
-- [ ] Создать EF-миграцию `AddProjects`
+- [x] Создать `Domain/Projects/Project.cs` — сущность с полями: `Id` (long), `UserId` (long), `Name` (string), `Description` (string?), `GitHubRepoUrl` (string), `EncryptedGitHubPat` (string), `CreatedAt` (DateTime), `UpdatedAt` (DateTime), navigation property `User`
+- [x] Создать `Database/Configurations/ProjectConfiguration.cs` — таблица `projects.projects`, схема `projects`, FK к `users.users`, индекс `IX_projects_user_id` по `UserId`
+- [x] Добавить `DbSet<Project> Projects` в `AppDbContext.cs`
+- [x] Добавить navigation property `ICollection<Project> Projects` в сущность `User`
+- [x] Создать EF-миграцию `AddProjects`
 
 #### 0.3. HttpServerHarness (тестовая инфраструктура)
-- [ ] Создать `DrimAgents.Api.Tests/Harnesses/HttpServerHarness.cs`
+- [x] Создать `DrimAgents.Api.Tests/Harnesses/HttpServerHarness.cs`
   - Подменяет `HttpMessageHandler` для named HttpClient через DI
   - API: `ForClient("GitHub").RespondTo(HttpMethod.Get, "/repos/owner/repo").WithJson(...)` / `.WithStatusCode(404)` / `.WithError()`
   - Верификация: проверка что запрос был отправлен, с какими заголовками
   - Метод `Reset()` для очистки между тестами
-- [ ] Подключить `HttpServerHarness` в `TestFixture` — добавить свойство `HttpServer`, вызвать `Reset()` в `Reset()`
+- [x] Подключить `HttpServerHarness` в `TestFixture` — добавить свойство `HttpServer`, вызвать `Reset()` в `Reset()`
 
 #### 0.4. TypeScript типы и Zod-схемы
-- [ ] Добавить в `types/api.ts` (или создать `types/project.ts`): `ProjectDto`, `CreateProjectRequest`, `UpdateProjectRequest`
-- [ ] Создать `lib/validations/project.ts` — Zod-схемы: `createProjectSchema`, `updateProjectSchema`
+- [x] Добавить в `types/api.ts` (или создать `types/project.ts`): `ProjectDto`, `CreateProjectRequest`, `UpdateProjectRequest`
+- [x] Создать `lib/validations/project.ts` — Zod-схемы: `createProjectSchema`, `updateProjectSchema`
   - `name`: `z.string().min(3).max(200)`
   - `gitHubRepoUrl`: `z.string().url()` + regex `^https://github\.com/[a-zA-Z0-9\-\.]+/[a-zA-Z0-9\-\.\_]+$`
   - `gitHubPat`: `z.string().min(1)` (при создании обязателен, при обновлении опционален)
@@ -79,9 +79,9 @@
 ### Слой 1: Сервисы и DI
 
 #### 1.1. GitHubService
-- [ ] Создать `Common/Services/IGitHubService.cs` — интерфейс с методом `ValidateRepositoryAccess(string repoUrl, string pat, CancellationToken ct) → GitHubRepoInfo`
-- [ ] Создать `Common/Services/GitHubRepoInfo.cs` — record `GitHubRepoInfo(string FullName, bool HasPushAccess)`
-- [ ] Создать `Common/Services/GitHubService.cs` — реализация:
+- [x] Создать `Common/Services/IGitHubService.cs` — интерфейс с методом `ValidateRepositoryAccess(string repoUrl, string pat, CancellationToken ct) → GitHubRepoInfo`
+- [x] Создать `Common/Services/GitHubRepoInfo.cs` — record `GitHubRepoInfo(string FullName, bool HasPushAccess)`
+- [x] Создать `Common/Services/GitHubService.cs` — реализация:
   - Инжектирует `IHttpClientFactory`, получает named client `"GitHub"`
   - Парсит `owner/repo` из URL через regex
   - Вызывает `GET /repos/{owner}/{repo}` с `Authorization: Bearer {pat}`, `User-Agent: DrimAgents`
@@ -93,18 +93,18 @@
 > `LimitOffsetPaging` не трогаем. У него фиксированный IV для детерминированных токенов, `AesEncryptionService` использует случайный IV — несовместимо. `IPaginationEncryption` не регистрируем.
 
 #### 1.3. Регистрация DI в Program.cs
-- [ ] Зарегистрировать `EncryptionOptions`: `builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection("Encryption"))`
-- [ ] Зарегистрировать `IDataProtectionEncryption`: singleton с ключом из `EncryptionOptions.DataProtectionKey`
-- [ ] Зарегистрировать `IPaginationEncryption`: singleton с ключом из `EncryptionOptions.PaginationKey`
-- [ ] Зарегистрировать `IGitHubService` + named HttpClient `"GitHub"` (base address `https://api.github.com`, User-Agent `DrimAgents`, Accept `application/vnd.github+json`)
-- [ ] Добавить ключи шифрования в `appsettings.Development.json`
+- [x] Зарегистрировать `EncryptionOptions`: `builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection("Encryption"))`
+- [x] Зарегистрировать `IDataProtectionEncryption`: singleton с ключом из `EncryptionOptions.DataProtectionKey`
+- [x] Зарегистрировать `IPaginationEncryption`: singleton с ключом из `EncryptionOptions.PaginationKey`
+- [x] Зарегистрировать `IGitHubService` + named HttpClient `"GitHub"` (base address `https://api.github.com`, User-Agent `DrimAgents`, Accept `application/vnd.github+json`)
+- [x] Добавить ключи шифрования в `appsettings.Development.json`
 
 ---
 
 ### Слой 2: Вертикальные слайсы (параллельно)
 
 #### 2.1. CreateProject
-- [ ] Создать `Features/Projects/CreateProject.cs`
+- [x] Создать `Features/Projects/CreateProject.cs`
   - **Endpoint**: `POST /api/projects`, `.RequireAuthorization()`, извлекает `UserId` из `HttpContext`
   - **Request**: `Name`, `Description`, `GitHubRepoUrl`, `GitHubPat` → `IRequest<Response>`
   - **Response**: `Id` (Base32), `Name`, `Description`, `GitHubRepoUrl`, `MaskedGitHubPat`, `CreatedAt`, `UpdatedAt`
@@ -113,7 +113,7 @@
   - Возвращает `201 Created` с Location header
 
 #### 2.2. GetProjects
-- [ ] Создать `Features/Projects/GetProjects.cs`
+- [x] Создать `Features/Projects/GetProjects.cs`
   - **Endpoint**: `GET /api/projects`, `.RequireAuthorization()`, извлекает `UserId`
   - **Request**: `UserId` → `IRequest<Response>`
   - **Response**: массив `ProjectItem` (без пагинации — до 20-30 проектов в MVP)
@@ -121,14 +121,14 @@
   - Маскировка PAT в проекции: расшифровать → взять последние 4 символа → `····xxxx`
 
 #### 2.3. GetProject
-- [ ] Создать `Features/Projects/GetProject.cs`
+- [x] Создать `Features/Projects/GetProject.cs`
   - **Endpoint**: `GET /api/projects/{id}`, `.RequireAuthorization()`, декодирует Base32 ID, извлекает `UserId`
   - **Request**: `ProjectId` (long), `UserId` (long) → `IRequest<Response?>`
   - **Response**: полный DTO проекта с `MaskedGitHubPat`
   - **RequestHandler**: `AsNoTracking()`, фильтр по `Id` и `UserId`, `Select()` проекция. Если не найден → `NotFoundException`
 
 #### 2.4. UpdateProject
-- [ ] Создать `Features/Projects/UpdateProject.cs`
+- [x] Создать `Features/Projects/UpdateProject.cs`
   - **Endpoint**: `PUT /api/projects/{id}`, `.RequireAuthorization()`, декодирует Base32 ID, извлекает `UserId`
   - **Request**: `ProjectId`, `UserId`, `Name`, `Description`, `GitHubRepoUrl`, `GitHubPat?` → `IRequest<Response>`
   - **RequestValidator**: Name (required, 3-200), GitHubRepoUrl (required, regex), GitHubPat (если передан — not empty)
@@ -144,8 +144,8 @@
 ### Слой 3: Компонентные тесты (параллельно)
 
 #### 3.1. Тестовая коллекция и тесты CreateProject
-- [ ] Создать `Tests/Features/Projects/ProjectsTestsCollection.cs`
-- [ ] Создать `Tests/Features/Projects/CreateProjectTests.cs`
+- [x] Создать `Tests/Features/Projects/ProjectsTestsCollection.cs`
+- [x] Создать `Tests/Features/Projects/CreateProjectTests.cs`
   - **ValidatorTests** (вложенный класс):
     - Name пустой → `projects:project:name:required`
     - Name < 3 → `projects:project:name:too_short`
@@ -165,7 +165,7 @@
     - Без аутентификации → 401
 
 #### 3.2. Тесты GetProjects
-- [ ] Создать `Tests/Features/Projects/GetProjectsTests.cs`
+- [x] Создать `Tests/Features/Projects/GetProjectsTests.cs`
   - Возвращает только проекты текущего пользователя (изоляция)
   - Пустой список → 200 с пустым массивом
   - Порядок — по CreatedAt desc
@@ -173,14 +173,14 @@
   - Без аутентификации → 401
 
 #### 3.3. Тесты GetProject
-- [ ] Создать `Tests/Features/Projects/GetProjectTests.cs`
+- [x] Создать `Tests/Features/Projects/GetProjectTests.cs`
   - Получение своего проекта → 200, PAT замаскирован
   - Чужой проект → 404
   - Несуществующий ID → 404
   - Без аутентификации → 401
 
 #### 3.4. Тесты UpdateProject
-- [ ] Создать `Tests/Features/Projects/UpdateProjectTests.cs`
+- [x] Создать `Tests/Features/Projects/UpdateProjectTests.cs`
   - **ValidatorTests** (вложенный класс):
     - Те же правила для Name и GitHubRepoUrl, что и в Create
     - GitHubPat = null → без ошибок
@@ -198,11 +198,11 @@
 ### Слой 4: Фронтенд (параллельно)
 
 #### 4.1. BFF-маршруты
-- [ ] Создать `app/api/projects/route.ts` — `GET` (proxyGet), `POST` (proxyPost)
-- [ ] Создать `app/api/projects/[id]/route.ts` — `GET` (proxyGet), `PUT` (proxyPut)
+- [x] Создать `app/api/projects/route.ts` — `GET` (proxyGet), `POST` (proxyPost)
+- [x] Создать `app/api/projects/[id]/route.ts` — `GET` (proxyGet), `PUT` (proxyPut)
 
 #### 4.2. Страница списка проектов
-- [ ] Создать `app/projects/page.tsx` (Server Component)
+- [x] Создать `app/projects/page.tsx` (Server Component)
   - Защита: `requireAuth()` с редиректом на логин
   - Загрузка проектов через `forwardToBackend("/api/projects")`
   - Пустое состояние: сообщение + кнопка «Создать проект»
@@ -211,7 +211,7 @@
   - Обёрнуть интерактивную часть в Client Component (`ProjectsPageContent`)
 
 #### 4.3. Страница проекта
-- [ ] Создать `app/projects/[id]/page.tsx` (Server Component)
+- [x] Создать `app/projects/[id]/page.tsx` (Server Component)
   - Защита: `requireAuth()`
   - Загрузка проекта через `forwardToBackend("/api/projects/{id}")`
   - Если 404 → `notFound()`
@@ -220,16 +220,16 @@
   - Заглушка для канбан-доски
 
 #### 4.4. Компоненты проектов
-- [ ] Создать `components/projects/ProjectCard.tsx` — карточка проекта (название, описание, GitHub URL, дата)
-- [ ] Создать `components/projects/ProjectList.tsx` — обёртка списка карточек
-- [ ] Создать `components/projects/CreateProjectModal.tsx` (Client Component)
+- [x] Создать `components/projects/ProjectCard.tsx` — карточка проекта (название, описание, GitHub URL, дата)
+- [x] Создать `components/projects/ProjectList.tsx` — обёртка списка карточек
+- [x] Создать `components/projects/CreateProjectModal.tsx` (Client Component)
   - Форма: name, description, gitHubRepoUrl, gitHubPat (type="password")
   - Валидация через Zod (`createProjectSchema`)
   - Submit через `apiPost("/api/projects", data)`
   - Обработка ошибок от backend (ProblemDetails → поля формы)
   - Loading-состояние кнопки
   - При успехе: закрыть модалку, `router.refresh()`
-- [ ] Создать `components/projects/EditProjectModal.tsx` (Client Component)
+- [x] Создать `components/projects/EditProjectModal.tsx` (Client Component)
   - Аналогично Create, но:
   - PAT placeholder `····xxxx` (из `maskedGitHubPat`)
   - PAT опционален (null = не менять)
@@ -283,7 +283,7 @@
 
 ## Проверка после реализации
 
-- [ ] `dotnet build DrimAgents.sln` — успешная сборка
-- [ ] `dotnet test` — все тесты проходят
-- [ ] `npm run build` (frontend) — успешная сборка
+- [x] `dotnet build DrimAgents.sln` — успешная сборка
+- [x] `dotnet test` — все тесты проходят
+- [x] `npm run build` (frontend) — успешная сборка
 - [ ] Ручная проверка: создание проекта, просмотр списка, просмотр деталей, обновление
