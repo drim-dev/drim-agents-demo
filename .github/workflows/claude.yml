@@ -58,4 +58,4 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: "Проведи ревью этого PR. Сфокусируйся на багах, проблемах безопасности и соблюдении конвенций проекта из CLAUDE.md. Будь лаконичен."
-          claude_args: "--max-turns 5"
+          claude_args: "--max-turns 5 --allowedTools 'Bash(gh pr *)' 'Bash(gh api *)' 'Bash(git diff *)' 'Bash(git log *)'"
