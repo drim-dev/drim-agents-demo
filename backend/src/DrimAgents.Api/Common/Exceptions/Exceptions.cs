@@ -55,6 +55,13 @@ public class BadRequestException : Exception
     }
 }
 
+public class ServiceUnavailableException : Exception
+{
+    public ServiceUnavailableException(string message) : base(message)
+    {
+    }
+}
+
 public class UnprocessableEntityException : Exception
 {
     public UnprocessableEntityException(string message) : base(message)

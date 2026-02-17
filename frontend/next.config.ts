@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
       static: 30,
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/hubs/chat",
+        destination: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/hubs/chat`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

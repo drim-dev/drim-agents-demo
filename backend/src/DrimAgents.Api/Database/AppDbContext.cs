@@ -1,3 +1,4 @@
+using DrimAgents.Api.Domain.Chat;
 using DrimAgents.Api.Domain.Projects;
 using DrimAgents.Api.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<OAuthAccount> OAuthAccounts => Set<OAuthAccount>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Domain.Tasks.Task> ProjectTasks => Set<Domain.Tasks.Task>();
+    public DbSet<ChatSession> ChatSessions => Set<ChatSession>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

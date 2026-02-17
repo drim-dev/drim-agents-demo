@@ -122,7 +122,7 @@ public class DatabaseHarness<TProgram, TDbContext> : IHarness<TProgram>
 
         var respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
-            SchemasToInclude = ["public", "users", "projects"],
+            SchemasToInclude = ["public", "users", "projects", "tasks", "chat"],
             DbAdapter = DbAdapter.Postgres,
         });
 

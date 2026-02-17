@@ -59,6 +59,13 @@ public class ExceptionHandlerMiddleware
                 Detail = unprocessable.Message,
                 Type = "https://tools.ietf.org/html/rfc4918#section-11.2"
             },
+            ServiceUnavailableException serviceUnavailable => new ProblemDetails
+            {
+                Status = StatusCodes.Status503ServiceUnavailable,
+                Title = "Service Unavailable",
+                Detail = serviceUnavailable.Message,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.6.4"
+            },
             ValidationException validation => new ValidationProblemDetails(validation.Errors)
             {
                 Status = StatusCodes.Status400BadRequest,
@@ -75,7 +82,7 @@ public class ExceptionHandlerMiddleware
             }
         };
 
-        if (exception is not NotFoundException and not ForbiddenException and not ConflictException and not BadRequestException and not UnprocessableEntityException and not ValidationException)
+        if (exception is not NotFoundException and not ForbiddenException and not ConflictException and not BadRequestException and not UnprocessableEntityException and not ServiceUnavailableException and not ValidationException)
         {
             _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
         }

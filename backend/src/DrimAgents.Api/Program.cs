@@ -1,3 +1,4 @@
+using DrimAgents.Api.Common.AgentGateway;
 using DrimAgents.Api.Common.Auth;
 using DrimAgents.Api.Common.Exceptions;
 using DrimAgents.Api.Common.Http;
@@ -8,9 +9,11 @@ using DrimAgents.Api.Common.Services;
 using DrimAgents.Api.Common.Validation;
 using DrimAgents.Api.Database;
 using DrimAgents.Api.Features.Users.Options;
+using DrimAgents.Api.Hubs;
 using FluentValidation;
 using IdGen;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -60,6 +63,9 @@ builder.Services.AddHttpClient("GitHub", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 });
 builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.Configure<AgentGatewayOptions>(builder.Configuration.GetSection("AgentGateway"));
+builder.Services.AddSingleton<IAgentGateway, WebSocketAgentGateway>();
+builder.Services.AddSignalR();
 
 builder.Services.AddMediatR(cfg =>
 {
@@ -110,6 +116,28 @@ foreach (var type in endpointTypes)
     var endpoint = (IEndpoint)Activator.CreateInstance(type)!;
     endpoint.MapEndpoint(app);
 }
+
+app.UseWebSockets();
+app.MapHub<ChatHub>("/hubs/chat");
+app.Map("/ws/agent", async (HttpContext context, IAgentGateway gateway) =>
+{
+    if (!context.WebSockets.IsWebSocketRequest)
+    {
+        context.Response.StatusCode = 400;
+        return;
+    }
+
+    var apiKey = context.Request.Query["apiKey"].ToString();
+    var options = context.RequestServices.GetRequiredService<IOptions<AgentGatewayOptions>>().Value;
+    if (string.IsNullOrEmpty(apiKey) || apiKey != options.ApiKey)
+    {
+        context.Response.StatusCode = 401;
+        return;
+    }
+
+    var ws = await context.WebSockets.AcceptWebSocketAsync();
+    await ((WebSocketAgentGateway)gateway).HandleWebSocketAsync(ws);
+});
 
 app.Run();
 

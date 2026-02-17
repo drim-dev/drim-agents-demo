@@ -4,35 +4,35 @@ using DrimAgents.Api.Tests.Harnesses;
 
 namespace DrimAgents.Api.Tests.Fixtures;
 
-public class TestFixture : IAsyncLifetime
+public class WebSocketTestFixture : IAsyncLifetime
 {
     private readonly WebApplicationFactory<Program> _factory;
 
-    public TestFixture()
+    public WebSocketTestFixture()
     {
         Database = new DatabaseHarness<Program, AppDbContext>("drimagentsdb");
         HttpServer = new HttpServerHarness<Program>();
         HttpClient = new HttpClientHarness<Program>();
-        AgentGateway = new AgentGatewayHarness<Program>();
 
         _factory = new WebApplicationFactory<Program>()
             .AddHarness(Database)
             .AddHarness(HttpServer)
             .AddHarness(HttpClient)
-            .AddHarness(AgentGateway);
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("AgentGateway:ApiKey", "test-api-key");
+            });
     }
 
     public WebApplicationFactory<Program> Factory => _factory;
     public DatabaseHarness<Program, AppDbContext> Database { get; }
     public HttpServerHarness<Program> HttpServer { get; }
     public HttpClientHarness<Program> HttpClient { get; }
-    public AgentGatewayHarness<Program> AgentGateway { get; }
 
     public async Task Reset(CancellationToken cancellationToken)
     {
         await Database.Clear(cancellationToken);
         HttpServer.Reset();
-        AgentGateway.Reset();
     }
 
     private static CancellationToken CreateCancellationToken(int timeoutSeconds = 30)
