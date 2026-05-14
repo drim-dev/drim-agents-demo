@@ -1,48 +1,48 @@
 ---
 name: design-brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Ты ОБЯЗАН использовать этот скилл перед любой творческой работой — созданием фич, построением компонентов, добавлением функциональности или изменением поведения. Исследует намерения пользователя, требования и дизайн до реализации."
 ---
 
-# Brainstorming Ideas Into Designs
+# Превращение идей в дизайны
 
-## Overview
+## Обзор
 
-Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
+Помогай превращать идеи в полноценные дизайны и спецификации через естественный совместный диалог.
 
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design in small sections (200-300 words), checking after each section whether it looks right so far.
+Начни с понимания текущего контекста проекта, затем задавай вопросы по одному, чтобы уточнить идею. Когда поймёшь, что строишь, представь дизайн небольшими секциями (200–300 слов), после каждой секции проверяя, всё ли выглядит правильно.
 
-## The Process
+## Процесс
 
-**Understanding the idea:**
-- Check out the current project state first (files, docs, recent commits)
-- Ask questions one at a time to refine the idea
-- Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message - if a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
+**Понимание идеи:**
+- Сначала изучи текущее состояние проекта (файлы, документы, недавние коммиты)
+- Задавай вопросы по одному, чтобы уточнить идею
+- По возможности предпочитай вопросы с вариантами ответов, но открытые вопросы тоже допустимы
+- Только один вопрос за сообщение — если тема требует более глубокого исследования, разбей её на несколько вопросов
+- Сосредоточься на понимании: цель, ограничения, критерии успеха
 
-**Exploring approaches:**
-- Propose 2-3 different approaches with trade-offs
-- Present options conversationally with your recommendation and reasoning
-- Lead with your recommended option and explain why
+**Исследование подходов:**
+- Предложи 2–3 разных подхода с их компромиссами
+- Представляй варианты в диалоговой форме со своей рекомендацией и обоснованием
+- Начинай с рекомендуемого варианта и объясняй почему
 
-**Presenting the design:**
-- Once you believe you understand what you're building, present the design
-- Break it into sections of 200-300 words
-- Ask after each section whether it looks right so far
-- Cover: architecture, components, data flow, error handling, testing
-- Be ready to go back and clarify if something doesn't make sense
+**Представление дизайна:**
+- Когда ты считаешь, что понимаешь, что строишь, представь дизайн
+- Разбей его на секции по 200–300 слов
+- После каждой секции спрашивай, всё ли выглядит правильно
+- Охвати: архитектуру, компоненты, поток данных, обработку ошибок, тестирование
+- Будь готов вернуться назад и уточнить, если что-то не имеет смысла
 
-## After the Design
+## После дизайна
 
-**Documentation:**
-- Write the validated design to `docs/designs/YYYY-MM-DD-<topic>.md`
-- Commit the design document to git
+**Документация:**
+- Запиши провалидированный дизайн в `docs/designs/YYYY-MM-DD-<topic>.md`
+- Закоммить документ дизайна в git
 
-## Key Principles
+## Ключевые принципы
 
-- **One question at a time** - Don't overwhelm with multiple questions
-- **Multiple choice preferred** - Easier to answer than open-ended when possible
-- **YAGNI ruthlessly** - Remove unnecessary features from all designs
-- **Explore alternatives** - Always propose 2-3 approaches before settling
-- **Incremental validation** - Present design in sections, validate each
-- **Be flexible** - Go back and clarify when something doesn't make sense
+- **Один вопрос за раз** — не перегружай несколькими вопросами одновременно
+- **Предпочитай варианты ответов** — на них проще отвечать, чем на открытые вопросы, когда это возможно
+- **Безжалостный YAGNI** — убирай ненужные фичи из всех дизайнов
+- **Исследуй альтернативы** — всегда предлагай 2–3 подхода перед выбором
+- **Инкрементальная валидация** — представляй дизайн секциями, валидируй каждую
+- **Будь гибким** — возвращайся назад и уточняй, когда что-то не имеет смысла
